@@ -29,52 +29,49 @@ public class SimpleCanvas {
     /**
      * Creates a new SimpleCanvas of the specified width and height, with the specified title.
      */
-    public SimpleCanvas(int width, int height, String title) {
-        this.height = height;
-        this.width = width;
-        //penColor = Color.BLACK;
+   public SimpleCanvas(int width, int height, String title) {
 
-        SwingUtilities.invokeLater(new Runnable() {
+    this.width = width;
+    this.height = height;
+
+    SwingUtilities.invokeLater(() -> {
+        frame = new JFrame(title);
+
+        // 1:1 pixel BufferedImage, no scaling hacks
+        onscreenImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        onscreenGraphics = onscreenImage.createGraphics();
+
+        // Add anti-aliasing
+        RenderingHints hints = new RenderingHints(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
+        hints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        onscreenGraphics.addRenderingHints(hints);
+
+        // Clear background
+        onscreenGraphics.setColor(bgColor);
+        onscreenGraphics.fillRect(0, 0, width, height);
+        onscreenGraphics.setColor(Color.BLACK);
+
+        // Use JLabel to display the image
+        JLabel draw = new JLabel(new ImageIcon(onscreenImage));
+        draw.setPreferredSize(new Dimension(width, height));  // Important: keeps 1000x1000
+
+        draw.addMouseListener(new MouseAdapter() {
             @Override
-            public void run() {
-                frame = new JFrame(title);
-                frame.setVisible(false);
-                onscreenImage = new BufferedImage(2 * width, 2 * height, BufferedImage.TYPE_INT_ARGB);
-                onscreenGraphics = onscreenImage.createGraphics();
-                onscreenGraphics.scale(2, 2);
-
-                // add antialiasing
-                RenderingHints hints = new RenderingHints(RenderingHints.KEY_ANTIALIASING,
-                        RenderingHints.VALUE_ANTIALIAS_ON);
-                hints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-                onscreenGraphics.addRenderingHints(hints);
-
-                // clear screen
-                onscreenGraphics.setColor(bgColor);
-                onscreenGraphics.fillRect(0, 0, width, height);
-                //System.out.println("painted BG");
-                onscreenGraphics.setColor(Color.BLACK);
-
-                // frame stuff
-                RetinaImageIcon icon = new RetinaImageIcon(onscreenImage);
-                JLabel draw = new JLabel(icon);
-                draw.addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mouseReleased(MouseEvent e) {
-                        lastMouseClickX = e.getX();
-                        lastMouseClickY = e.getY();
-                    }
-                });
-                frame.setContentPane(draw);
-                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.setResizable(false);
-                frame.pack();
-                //frame.repaint();
-                //System.out.println("done constructor");
+            public void mouseReleased(MouseEvent e) {
+                lastMouseClickX = e.getX();
+                lastMouseClickY = e.getY();
             }
         });
-    }
 
+        frame.setContentPane(draw);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setResizable(false);
+        frame.pack();   // pack AFTER preferred size is set
+        frame.setVisible(true);
+    });
+}
+    
     private static class MouseWaiter extends MouseAdapter {
         public void mouseReleased(MouseEvent e) {
             synchronized (this) {
@@ -560,5 +557,9 @@ public class SimpleCanvas {
         }
 
         return icon.getImage();
+    }
+
+    public JFrame getFrame() {
+        return frame;
     }
 }
