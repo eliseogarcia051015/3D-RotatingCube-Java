@@ -2,7 +2,9 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -17,16 +19,24 @@ public class Cuberotation{
         JFrame frame =  canvas.getFrame();  
         frame.setLayout(new BorderLayout());
 
+        //Button panel
+        JPanel buttoPanel = new JPanel();
+        JButton button = new JButton("Reset");
+        buttoPanel.add(Box.createVerticalStrut(200));
+        buttoPanel.add(button);
+        button.setPreferredSize(new Dimension(200,60));
+        button.setFont(new Font("Arial", Font.BOLD, 24));
+        buttoPanel.setOpaque(false);
+
+        //Slider panel
         JPanel sliderPanel = new JPanel();
         sliderPanel.setLayout(new BoxLayout(sliderPanel, BoxLayout.Y_AXIS));
         sliderPanel.setPreferredSize(new Dimension(450, 600));
-
         Font labelFont = new Font("Arial", Font.BOLD, 30);
         Font sliderFont = new Font("Arial", Font.PLAIN, 20);
-
         Dimension sliderSize = new Dimension(500, 80);
 
-        // X
+        // X 
         JLabel xLabel = new JLabel("X Rotation");
         xLabel.setFont(labelFont);
 
@@ -71,23 +81,34 @@ public class Cuberotation{
         frame.add(sliderPanel, BorderLayout.WEST);
         frame.pack();
         frame.setVisible(true);
+        frame.add(buttoPanel, BorderLayout.EAST);
+        frame.pack();
+        frame.setVisible(true);
 
         Cube cube = new Cube();
-        double angleX = 0;
-        double angleY = 0;
-        double angleZ = 0;
+        double angles[] = {0, 0, 0}; //[x,y,z]
+
+        button.addActionListener(e -> {
+            xSlider.setValue(0);
+            ySlider.setValue(0);
+            zSlider.setValue(0);
+
+            angles[0] = 0;
+            angles[1] = 0;
+            angles[2] = 0;
+        });
 
         while (true) {
 
             canvas.clear();
 
-            angleX += xSlider.getValue() * 0.001;
-            angleY += ySlider.getValue() * 0.001;
-            angleZ += zSlider.getValue() * 0.001;
+            angles[0] += xSlider.getValue() * 0.001;
+            angles[1] += ySlider.getValue() * 0.001;
+            angles[2] += zSlider.getValue() * 0.001;
 
-            Matrix rx = Matrix.rotateX(angleX);
-            Matrix ry = Matrix.rotateY(angleY);
-            Matrix rz = Matrix.rotateZ(angleZ);
+            Matrix rx = Matrix.rotateX(angles[0]);
+            Matrix ry = Matrix.rotateY(angles[1]);
+            Matrix rz = Matrix.rotateZ(angles[2]);
 
             Vector[] projected = new Vector[cube.vertices.length];
 
