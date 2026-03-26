@@ -19,14 +19,31 @@ public class Cuberotation{
         JFrame frame =  canvas.getFrame();  
         frame.setLayout(new BorderLayout());
 
-        //Button panel
+        //Rest button
         JPanel buttoPanel = new JPanel();
         JButton button = new JButton("Reset");
         buttoPanel.add(Box.createVerticalStrut(200));
         buttoPanel.add(button);
         button.setPreferredSize(new Dimension(200,60));
-        button.setFont(new Font("Arial", Font.BOLD, 24));
+        button.setFont(new Font("Arial", Font.BOLD, 35));
         buttoPanel.setOpaque(false);
+
+        //zoom in / zoom out buttons
+        JPanel buttonsPanel = new JPanel();
+
+        JButton zoom_in = new JButton("+");
+        buttonsPanel.add(Box.createVerticalStrut(75));
+        buttonsPanel.add(zoom_in);
+        zoom_in.setPreferredSize(new Dimension(95,50));
+        zoom_in.setFont(new Font("Arial", Font.BOLD, 50));
+        buttonsPanel.setOpaque(false);
+
+        JButton zoom_out = new JButton("-");
+        buttonsPanel.add(Box.createVerticalStrut(75));
+        buttonsPanel.add(zoom_out);
+        zoom_out.setPreferredSize(new Dimension(95,50));
+        zoom_out.setFont(new Font("Arial", Font.BOLD, 50));
+        buttonsPanel.setOpaque(false);
 
         //Slider panel
         JPanel sliderPanel = new JPanel();
@@ -83,12 +100,16 @@ public class Cuberotation{
         frame.setVisible(true);
         frame.add(buttoPanel, BorderLayout.EAST);
         frame.pack();
+        frame.add(buttonsPanel, BorderLayout.EAST);
+        frame.pack();
         frame.setVisible(true);
 
         Cube cube = new Cube();
         double angles[] = {0, 0, 0}; //[x,y,z]
+        double distance = 2;
+        final double scale[] = {200};
 
-        button.addActionListener(e -> {
+        button.addActionListener(e -> { //sets all values to zero
             xSlider.setValue(0);
             ySlider.setValue(0);
             zSlider.setValue(0);
@@ -96,6 +117,16 @@ public class Cuberotation{
             angles[0] = 0;
             angles[1] = 0;
             angles[2] = 0;
+
+            scale[0] = 200;
+        });
+
+        zoom_in.addActionListener(e -> {
+            scale[0] += 20;
+        });
+
+        zoom_out.addActionListener(e -> {
+            scale[0] -= 20;
         });
 
         while (true) {
@@ -117,13 +148,10 @@ public class Cuberotation{
                 Vector v = cube.vertices[i];
                 Vector rotated = v.multiply(rx).multiply(ry).multiply(rz);
 
-                double distance = 2;
-                double scale = 200;
-
                 double z = rotated.z + distance;
 
-                int x2d = (int)(rotated.x * scale / z) + canvas.getWidth()/2;
-                int y2d = (int)(rotated.y * scale / z) + canvas.getHeight()/2;
+                int x2d = (int)(rotated.x * scale[0] / z) + canvas.getWidth()/2;
+                int y2d = (int)(rotated.y * scale[0] / z) + canvas.getHeight()/2;
 
                 projected[i] = new Vector(x2d, y2d, rotated.z);
             }
